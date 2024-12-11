@@ -1,0 +1,71 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Step 1: Data Generation for Bidding System
+def generate_bidding_data(num_projects):
+    project_ids = [f"Project_{i+1}" for i in range(num_projects)]
+    budgets = np.random.randint(10000, 50000, size=num_projects)
+    deadlines = np.random.randint(10, 60, size=num_projects)
+    
+    bidders = ['Bidder_A', 'Bidder_B', 'Bidder_C', 'Bidder_D', 'Bidder_E']
+    bids = {project: {bidder: np.random.randint(budget - 5000, budget) for bidder in bidders} for project, budget in zip(project_ids, budgets)}
+
+    # Create DataFrame for Projects
+    df_projects = pd.DataFrame({
+        'ProjectID': project_ids,
+        'Budget': budgets,
+        'Deadline': deadlines
+    })
+
+    return df_projects, bids
+
+# Step 2: Simulate the Bidding System (Determine Winning Bidder)
+def simulate_bidding_system(df_projects, bids):
+    winning_bidders = []
+    winning_bids = []
+    
+    # For each project, determine the winner
+    for project in df_projects['ProjectID']:
+        project_bids = bids[project]
+        winner = min(project_bids, key=project_bids.get)
+        winning_bidders.append(winner)
+        winning_bids.append(project_bids[winner])
+    
+    # Add the results to the DataFrame
+    df_projects['WinningBidder'] = winning_bidders
+    df_projects['WinningBid'] = winning_bids
+    
+    return df_projects
+
+# Step 3: Plot the Results as a Scatter Plot
+def plot_bidding_results(df):
+    plt.figure(figsize=(10, 6))
+    
+    # Scatter plot: Plot ProjectID vs WinningBid for each bidder
+    # Use different colors for each bidder
+    colors = {'Bidder_A': 'blue', 'Bidder_B': 'green', 'Bidder_C': 'red', 'Bidder_D': 'purple', 'Bidder_E': 'orange'}
+    
+    for bidder in df['WinningBidder'].unique():
+        bidder_data = df[df['WinningBidder'] == bidder]
+        plt.scatter(bidder_data['ProjectID'], bidder_data['WinningBid'], label=bidder, color=colors[bidder], s=100, alpha=0.7)
+
+    plt.title('Bidding Results Scatter Plot')
+    plt.xlabel('Project ID')
+    plt.ylabel('Winning Bid')
+    plt.legend()
+    plt.xticks(rotation=45)
+    plt.grid(True)
+    plt.show()
+
+# Main execution
+if __name__ == "__main__":
+    # Generate synthetic bidding data
+    num_projects = 10
+    df_projects, bids = generate_bidding_data(num_projects)
+    
+    # Simulate bidding process
+    bidding_results = simulate_bidding_system(df_projects, bids)
+    
+    # Visualize the bidding results with scatter plot
+    plot_bidding_results(bidding_results)
